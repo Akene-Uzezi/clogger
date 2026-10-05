@@ -2,8 +2,10 @@
 package clogger
 
 import (
+	"context"
 	"log/slog"
 	"os"
+	"time"
 )
 
 type Logger struct {
@@ -29,4 +31,8 @@ func logLevel(status int) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+func (log *Logger) LogRequest(method, url string, status int, duration time.Duration) {
+	log.log.Log(context.Background(), logLevel(status), "request", "url", url, "method", method, "status", status, "duration", duration)
 }
