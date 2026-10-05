@@ -1,6 +1,9 @@
 package clogger
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
 type statusRecorder struct {
 	http.ResponseWriter
@@ -18,5 +21,9 @@ func (sr *statusRecorder) Unwrap() http.ResponseWriter {
 
 func (log *Logger) Start(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rec := &statusRecorder{w, http.StatusOK}
+		next.ServeHTTP(rec, r)
+		log.LogRequest(r.Method, r.URL.Path, rec.status, time.Since(start))
 	}
 }
